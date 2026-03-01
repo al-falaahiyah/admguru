@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADM GURU - MA AL-FALAAHIYAH</title>
+    <title>EduAdmin - MA AL-FALAAHIYAH</title>
     <!-- Favicon PNG -->
     <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1-etXPMxoKR5y7lV9oy3owMOcsd-rbP-A">
     <style>
@@ -60,7 +60,7 @@
     <!-- Loading Screen -->
     <div id="loader">
         <div class="spinner"></div>
-        <p>Memuat AdmGuru...</p>
+        <p>Memuat EduAdmin...</p>
     </div>
     <!-- Iframe App -->
     <iframe id="app"
@@ -89,6 +89,17 @@
             };
             // Memuat URL ke dalam Iframe
             iframe.src = iframeUrl;
+            // Mendengarkan pesan dari dalam iframe (Script Google Apps)
+            // agar URL di browser Bapak ikut berubah saat pindah halaman di dalam aplikasi
+            window.addEventListener('message', function (event) {
+                // Konfirmasi ini pesan dari navigasi kita
+                if (event.data && event.data.type === 'navigate') {
+                    const newPage = event.data.page;
+                    // Ubah URL di address bar tanpa mereload halaman iframe
+                    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?page=' + newPage;
+                    window.history.pushState({ path: newUrl }, '', newUrl);
+                }
+            });
         });
     </script>
 </body>
