@@ -4,24 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ADM GURU DIGITAL - MA AL-FALAAHIYAH</title>
-  
-  <link rel="icon" type="image/png" href="https://googleusercontent.com/profile/picture/0">
+
+  <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1-etXPMxoKR5y7lV9oy3owMOcsd-rbP-A">
 
   <style>
-    /* Menghilangkan scrollbar pada pembungkus utama */
     body, html { 
       margin: 0; 
       padding: 0; 
       height: 100%; 
-      width: 100%;
+      width: 100%; 
       overflow: hidden; 
-      background-color: #ffffff;
+      background: #ffffff; 
     }
-    /* Iframe memenuhi seluruh layar browser */
     iframe { 
-      position: absolute;
-      top: 0;
-      left: 0;
+      position: absolute; 
+      top: 0; 
+      left: 0; 
       width: 100%; 
       height: 100%; 
       border: none; 
@@ -30,37 +28,42 @@
 </head>
 <body>
 
-  <iframe 
-    id="app-frame" 
-    src="" 
-    allow="camera; microphone; geolocation; fullscreen; clipboard-write; payments"
-    title="Aplikasi ADM GURU DIGITAL">
-  </iframe>
+  <iframe id="app-frame" allow="camera; microphone; geolocation; fullscreen; clipboard-write"></iframe>
 
   <script>
-    (function() {
-      // 1. URL Web App Google Apps Script Anda (PASTIKAN SUDAH BENAR)
-      const gasBaseUrl = "https://script.google.com/macros/s/AKfycbyfNrtZ_eJ_ECiotFv4cD83gW0jdEqg_NJ4mTKrpwJLQ-hqRYdydZeLGMzCISQZN3RR/exec";
+    const gasBaseUrl = "https://script.google.com/macros/s/AKfycbyfNrtZ_eJ_ECiotFv4cD83gW0jdEqg_NJ4mTKrpwJLQ-hqRYdydZeLGMzCISQZN3RR/exec";
+    
+    function loadIframe() {
+      // Mengambil parameter 'page' dari URL browser (Custom Domain)
+      const urlParams = new URLSearchParams(window.location.search);
+      const page = urlParams.get('page') || 'LandingPage';
       
-      // 2. Mengambil semua parameter dari URL (misal: ?page=DataSiswa&user=admin)
-      const currentQuery = window.location.search;
-      
-      // 3. Jika tidak ada parameter ?page=, secara default panggil LandingPage
-      // Logika ini sinkron dengan fungsi doGet(e) di Kode.gs Anda
-      let finalUrl = gasBaseUrl;
-      if (currentQuery) {
-        finalUrl += currentQuery;
-      } else {
-        finalUrl += "?page=LandingPage";
+      // Memasukkan parameter tersebut ke dalam src Iframe
+      document.getElementById("app-frame").src = gasBaseUrl + "?page=" + page;
+    }
+
+    // Eksekusi saat halaman pertama kali dimuat
+    loadIframe();
+
+    // Fitur sinkronisasi: Jika URL di browser berubah (tombol Back/Forward), 
+    // iframe akan otomatis menyesuaikan tanpa refresh total.
+    window.onpopstate = function() {
+      loadIframe();
+    };
+
+    /**
+     * SINKRONISASI NAVIGASI (PENTING):
+     * Script di bawah ini mendengarkan pesan dari dalam Iframe.
+     * Jadi, jika di dalam AppScript Anda melakukan navigasi, 
+     * URL di Bar Browser Custom Domain akan ikut berubah.
+     */
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'navigate') {
+        const newUrl = window.location.pathname + '?page=' + event.data.page;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+        loadIframe();
       }
-
-      // 4. Masukkan URL hasil olahan ke dalam Iframe
-      document.getElementById("app-frame").src = finalUrl;
-      
-      // 5. Opsional: Sinkronisasi Judul Tab (jika diperlukan)
-      console.log("Memuat halaman: " + finalUrl);
-    })();
+    });
   </script>
-
 </body>
 </html>
