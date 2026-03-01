@@ -4,26 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ADM GURU DIGITAL - MA AL-FALAAHIYAH</title>
-
   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1-etXPMxoKR5y7lV9oy3owMOcsd-rbP-A">
-
   <style>
-    body, html { 
-      margin: 0; 
-      padding: 0; 
-      height: 100%; 
-      width: 100%; 
-      overflow: hidden; 
-      background: #ffffff; 
-    }
-    iframe { 
-      position: absolute; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      border: none; 
-    }
+    body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #ffffff; }
+    iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
   </style>
 </head>
 <body>
@@ -31,37 +15,42 @@
   <iframe id="app-frame" allow="camera; microphone; geolocation; fullscreen; clipboard-write"></iframe>
 
   <script>
+    // URL Google Apps Script Anda
     const gasBaseUrl = "https://script.google.com/macros/s/AKfycbyfNrtZ_eJ_ECiotFv4cD83gW0jdEqg_NJ4mTKrpwJLQ-hqRYdydZeLGMzCISQZN3RR/exec";
-    
-    function loadIframe() {
-      // Mengambil parameter 'page' dari URL browser (Custom Domain)
+    const iframe = document.getElementById("app-frame");
+
+    function updateIframe() {
       const urlParams = new URLSearchParams(window.location.search);
       const page = urlParams.get('page') || 'LandingPage';
+      const targetUrl = gasBaseUrl + "?page=" + page;
       
-      // Memasukkan parameter tersebut ke dalam src Iframe
-      document.getElementById("app-frame").src = gasBaseUrl + "?page=" + page;
+      // Hanya update jika SRC berbeda untuk mencegah reload berulang
+      if (iframe.src !== targetUrl) {
+        iframe.src = targetUrl;
+      }
     }
 
-    // Eksekusi saat halaman pertama kali dimuat
-    loadIframe();
+    // Pemuatan pertama kali
+    updateIframe();
 
-    // Fitur sinkronisasi: Jika URL di browser berubah (tombol Back/Forward), 
-    // iframe akan otomatis menyesuaikan tanpa refresh total.
-    window.onpopstate = function() {
-      loadIframe();
-    };
+    // Menangani tombol Back/Forward di browser
+    window.addEventListener('popstate', function() {
+      updateIframe();
+    });
 
-    /**
-     * SINKRONISASI NAVIGASI (PENTING):
-     * Script di bawah ini mendengarkan pesan dari dalam Iframe.
-     * Jadi, jika di dalam AppScript Anda melakukan navigasi, 
-     * URL di Bar Browser Custom Domain akan ikut berubah.
-     */
+    // Menerima pesan "navigate" dari GlobalJS (Apps Script)
     window.addEventListener('message', function(event) {
       if (event.data && event.data.type === 'navigate') {
-        const newUrl = window.location.pathname + '?page=' + event.data.page;
-        window.history.pushState({ path: newUrl }, '', newUrl);
-        loadIframe();
+        const pageName = event.data.page;
+        const newUrl = window.location.pathname + '?page=' + pageName;
+        
+        // 1. Ubah URL di Bar Browser tanpa reload halaman
+        window.history.pushState({ page: pageName }, '', newUrl);
+        
+        // 2. Ubah isi Iframe sesuai halaman tujuan
+        iframe.src = gasBaseUrl + "?page=" + pageName;
+        
+        console.log("Navigasi ke: " + pageName);
       }
     });
   </script>
